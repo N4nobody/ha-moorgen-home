@@ -34,11 +34,13 @@
 - `manifest.json`：HA 集成元信息（domain、版本、config_flow 等）
 - `__init__.py`：集成入口，初始化 coordinator 并转发到 button 平台
 - `config_flow.py`：UI 配置流程（host / port）
-- `coordinator.py`：数据协调器（定时拉取场景）
-- `socket_client.py`：异步 TCP 客户端（连接、收包、发包、重连）
-- `parse.py`：协议构包/解包、字段映射、业务路由（房间/设备/场景）
 - `button.py`：按钮实体定义与场景触发逻辑
 - `const.py`：常量定义
+- `core/coordinator.py`：数据协调器（定时拉取场景）
+- `core/socket_client.py`：异步 TCP 客户端（连接、收包、发包、重连）
+- `core/protocol/models.py`：协议字段映射与数据模型（`data_types`、`DataPacket` 等）
+- `core/protocol/codec.py`：协议编解码与路由（构包/解包、`route`、场景/设备/房间解析）
+- `core/protocol/commands.py`：业务命令构造（查询场景、触发场景等）
 
 ---
 
@@ -65,11 +67,15 @@ custom_components/
     __init__.py
     manifest.json
     config_flow.py
-    coordinator.py
-    socket_client.py
-    parse.py
     button.py
     const.py
+    core/
+      coordinator.py
+      socket_client.py
+      protocol/
+        commands.py
+        codec.py
+        models.py
 ```
 
 ### 2) 重启 Home Assistant
@@ -95,13 +101,53 @@ custom_components/
 
 ## 开发说明
 
+### 本地开发环境
+
+建议使用 Python 3.13+。
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-dev.txt
+```
+
+> 说明：本项目是 Home Assistant custom integration，运行时依赖由 `manifest.json` 中的 `requirements` 管理；
+> `requirements-dev.txt` 主要用于本地开发与测试工具安装。
+
+### 代码质量检查（Ruff）
+
+```bash
+ruff check .
+ruff check . --fix
+ruff format .
+```
+
+- `ruff check .`：静态检查
+- `ruff check . --fix`：自动修复可修复问题
+- `ruff format .`：统一代码格式
+
+Ruff 配置文件：`.ruff.toml`
+
+### 测试（Pytest）
+
+```bash
+pytest -q
+```
+
+当前仓库尚未提供完整测试用例，可按需在 `tests/` 目录补充。
+
 ### 协议处理
 
-`parse.py` 包含：
-- 大量字段 ID 与名称映射（`data_types`）
-- 通用协议解析 `parse_protocol_packet()`
-- 通用协议构包 `build_protocol_packet()`
-- 业务命令：
+协议代码按职责拆分后：
+
+- `core/protocol/models.py` 包含：
+  - 大量字段 ID 与名称映射（`data_types`）
+  - 协议数据模型（`DataField` / `DataPacket` / `RoomInfo` / `SceneInfo`）
+- `core/protocol/codec.py` 包含：
+  - 通用协议解析 `parse_protocol_packet()`
+  - 通用协议构包 `build_protocol_packet()`
+  - 业务路由 `route()` 与各类数据解析函数
+- `core/protocol/commands.py` 包含：
   - `query_room_info()`
   - `query_user_info()`
   - `query_device_details()`
@@ -117,7 +163,6 @@ custom_components/
 ## 当前实现备注
 
 - 场景实体在 `button` 平台初始化时创建，后续场景增减不会自动重建实体。
-- 协调器刷新逻辑含固定 `sleep`，实际刷新周期会长于 `update_interval`。
 - 协议字段映射与解析依赖具体主机返回格式，不同网关/固件可能需要适配。
 
 ---
