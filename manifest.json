@@ -1,0 +1,11 @@
+{
+  "domain": "ha_moorgen_home",
+  "name": "Moorgen Home",
+  "codeowners": ["mythsman"],
+  "dependencies": [],
+  "documentation": "",
+  "iot_class": "local_polling",
+  "config_flow": true,
+  "requirements": [],
+  "version": "0.1.0"
+}
