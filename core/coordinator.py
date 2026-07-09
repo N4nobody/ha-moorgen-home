@@ -45,6 +45,9 @@ class FurnitureLightsCoordinator(DataUpdateCoordinator):
             await self.client.wait_for_scene_update(previous_version, timeout=5)
             _LOGGER.info("async update result is %s", self.client.data)
             return self.client.data
+        except ConnectionError as ex:
+            _LOGGER.debug("skip refresh while disconnected: %s", ex)
+            return self.client.data
         except Exception as ex:
-            _LOGGER.warning("async update failed %s", ex)
-            raise UpdateFailed(f"Error fetching lights data: {ex}") from ex
+            _LOGGER.warning("async update failed: %r", ex)
+            raise UpdateFailed(f"Error fetching lights data: {ex!r}") from ex

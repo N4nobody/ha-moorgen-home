@@ -25,11 +25,23 @@ class AsyncSocketClient:
         self._scene_event = asyncio.Event()
         self._scene_version = 0
         self._kick_cooldown_seconds = 600
+        self._cooldown_until = 0.0
         self.data = {"scenes": [], "rooms": [], "devices": []}
 
     @property
     def scene_version(self):
         return self._scene_version
+
+    @property
+    def cooldown_remaining_seconds(self) -> int:
+        now = asyncio.get_running_loop().time()
+        return max(0, int(self._cooldown_until - now))
+
+    def _ensure_not_in_cooldown(self):
+        if self.cooldown_remaining_seconds > 0:
+            raise ConnectionError(
+                f"Reconnect cooldown active, retry in {self.cooldown_remaining_seconds}s"
+            )
 
     async def start(self):
         if self._connect_task and not self._connect_task.done():
@@ -51,13 +63,19 @@ class AsyncSocketClient:
         await self._close_writer()
 
     async def wait_until_connected(self, timeout=5):
+        self._ensure_not_in_cooldown()
+
         if (
             not self._connected
             and not self._stopped
             and (self._connect_task is None or self._connect_task.done())
         ):
             await self.start()
-        await asyncio.wait_for(self._connected_event.wait(), timeout=timeout)
+
+        try:
+            await asyncio.wait_for(self._connected_event.wait(), timeout=timeout)
+        except asyncio.TimeoutError as err:
+            raise ConnectionError(f"Connect timeout after {timeout}s") from err
 
     async def wait_for_scene_update(self, previous_version: int, timeout=5):
         if self._scene_version > previous_version:
@@ -100,8 +118,10 @@ class AsyncSocketClient:
                 )
                 break
 
+            self._cooldown_until = asyncio.get_running_loop().time() + retry_delay
             _LOGGER.info("Connection lost, retrying in %s seconds...", retry_delay)
             await asyncio.sleep(retry_delay)
+            self._cooldown_until = 0.0
 
     async def _connect_once(self):
         _LOGGER.info(f"Connecting to {self.host}:{self.port}")
@@ -152,6 +172,8 @@ class AsyncSocketClient:
 
     async def send_command(self, data: bytes):
         """Send raw bytes to the server."""
+        self._ensure_not_in_cooldown()
+
         async with self._lock:
             if not self._connected or not self._writer:
                 raise ConnectionError("Not connected, cannot send data")
