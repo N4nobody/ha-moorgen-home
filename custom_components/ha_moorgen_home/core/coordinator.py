@@ -45,6 +45,11 @@ class FurnitureLightsCoordinator(DataUpdateCoordinator):
             await self.client.wait_for_scene_update(previous_version, timeout=5)
             _LOGGER.info("async update result is %s", self.client.data)
             return self.client.data
+        except TimeoutError as ex:
+            _LOGGER.warning("scene refresh timeout, reconnect socket: %r", ex)
+            await self.client.stop()
+            await self.client.start()
+            return self.client.data
         except ConnectionError as ex:
             _LOGGER.debug("skip refresh while disconnected: %s", ex)
             return self.client.data
