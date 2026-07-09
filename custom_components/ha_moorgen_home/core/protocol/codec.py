@@ -9,11 +9,25 @@ def parse_protocol_packet(data) -> DataPacket:
     if len(data) < 19:
         raise ValueError("Packet is too short to parse")
 
+    if data[0] != 0x23:
+        raise ValueError("Invalid packet start marker")
+
     packet = DataPacket()
 
     packet.msg_flag = data[0]
     packet.length = data[1] + (data[2] << 8)
-    packet.proto_name = data[3:12].decode()
+
+    # packet.length is payload size after the first 3 bytes (header flag + length)
+    expected_len = packet.length + 3
+    if len(data) != expected_len:
+        raise ValueError(
+            f"Packet length mismatch: expected {expected_len}, got {len(data)}"
+        )
+
+    if data[-1] != 0x23:
+        raise ValueError("Invalid packet end marker")
+
+    packet.proto_name = data[3:12].decode("ascii", errors="replace")
     packet.proto_num = data[12]
     packet.proto_type = data[13]
     packet.link_code = data[14]
@@ -24,10 +38,23 @@ def parse_protocol_packet(data) -> DataPacket:
     datafield_offset = 19
     ptr = datafield_offset
     limit = datafield_offset + packet.data_len
-    while ptr < limit and ptr + 4 <= len(data):
+
+    # Excluding final 0x23 terminator
+    if limit > len(data) - 1:
+        raise ValueError("Packet data section exceeds frame boundary")
+
+    while ptr < limit:
+        if ptr + 4 > limit:
+            raise ValueError("Truncated field header")
+
         dtype = data[ptr] + (data[ptr + 1] << 8)
         vlen = data[ptr + 2] + (data[ptr + 3] << 8)
-        val = data[ptr + 4 : ptr + 4 + vlen]
+        value_end = ptr + 4 + vlen
+
+        if value_end > limit:
+            raise ValueError("Field length exceeds packet data boundary")
+
+        val = data[ptr + 4 : value_end]
 
         field = DataField()
         field.id = dtype
@@ -45,7 +72,7 @@ def parse_protocol_packet(data) -> DataPacket:
             field.value = val
 
         packet.fields.append(field)
-        ptr += 4 + vlen
+        ptr = value_end
 
     return packet
 

@@ -146,20 +146,49 @@ class AsyncSocketClient:
 
     async def _read_loop(self):
         buf = b""
+        max_frame_size = 8192
+
         while not self._stopped:
             data = await self._reader.read(4096)
             if not data:
                 raise ServerDisconnectedError("Server closed the connection")
 
             buf += data
-            while len(buf) > 3:
+
+            while True:
+                # Re-sync to frame start marker (0x23)
+                start = buf.find(b"\x23")
+                if start == -1:
+                    buf = b""
+                    break
+                if start > 0:
+                    _LOGGER.debug("Discarding %s bytes before frame marker", start)
+                    buf = buf[start:]
+
+                if len(buf) < 3:
+                    break
+
                 pkt_len = buf[1] + (buf[2] << 8)
                 full_len = pkt_len + 3
+
+                if full_len < 19 or full_len > max_frame_size:
+                    _LOGGER.warning(
+                        "[Packet handling error] invalid frame length: %s", full_len
+                    )
+                    buf = buf[1:]
+                    continue
+
                 if len(buf) < full_len:
                     break
 
                 pkt = buf[:full_len]
                 buf = buf[full_len:]
+
+                # Tail marker check before parsing
+                if pkt[-1] != 0x23:
+                    _LOGGER.warning("[Packet handling error] invalid frame tail marker")
+                    buf = pkt[1:] + buf
+                    continue
 
                 try:
                     data_packet = parse_protocol_packet(pkt)
