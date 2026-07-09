@@ -126,18 +126,20 @@ def route(packet: DataPacket, data_dict: dict):
     _LOGGER.info(f"packet come {packet.proto_num} {packet.proto_type} {packet.link_code}")
 
     if packet.proto_num == 1 and packet.proto_type == 3 and packet.link_code == 8:
-        if len(packet.fields) > 0 and packet.fields[0].id == 12:
-            _LOGGER.info("room info come")
-            data_dict["rooms"] = parse_room_info(packet)
-            return "rooms"
-        if len(packet.fields) > 0 and packet.fields[0].id == 4:
-            _LOGGER.info("device info come")
-            data_dict["devices"] = parse_device_info(packet)
-            return "devices"
         if len(packet.fields) > 0 and packet.fields[0].id == 15:
-            _LOGGER.info("scene info come")
-            data_dict["scenes"] = parse_scene_info(packet)
-            return "scenes"
+            datareq_type = packet.fields[0].value
+            if datareq_type == 12:
+                _LOGGER.info("room info come")
+                data_dict["rooms"] = parse_room_info(packet)
+                return "rooms"
+            if datareq_type == 4:
+                _LOGGER.info("device info come")
+                data_dict["devices"] = parse_device_info(packet)
+                return "devices"
+            if datareq_type == 18:
+                _LOGGER.info("scene info come")
+                data_dict["scenes"] = parse_scene_info(packet)
+                return "scenes"
 
     return None
 
@@ -166,7 +168,8 @@ def parse_device_info(packet: DataPacket):
             devices.append(current)
             current = {}
         t = get_type_by_id(item.id)
-        current[t["name"]] = item.value
+        key = t["name"] if t else (item.name or f"unknown_{item.id}")
+        current[key] = item.value
     if current:
         devices.append(current)
 
@@ -184,7 +187,8 @@ def parse_scene_info(packet: DataPacket) -> list[SceneInfo]:
             scenes.append(current)
             current = {}
         t = get_type_by_id(item.id)
-        current[t["name"]] = item.value
+        key = t["name"] if t else (item.name or f"unknown_{item.id}")
+        current[key] = item.value
     if current:
         scenes.append(current)
 

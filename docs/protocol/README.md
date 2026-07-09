@@ -7,6 +7,8 @@
 | 业务名称 | 文档 | proto_type | link_code | 关键 TLV | 请求/响应 | Java 入口 | 单测 |
 |---|---|---:|---:|---|---|---|---|
 | 查询场景简表 | `query_scene_simple.md` | 3 | 7 / 8 | `15=17/18`, `2`, `1`, `94`, `148` | req/rsp | `MainAction.get_Byte_Data_Req` | `tests/protocol/test_query_scene_simple.py` |
+| 查询房间信息 | `query_room_info.md` | 3 | 7 / 8 | `15=11/12`, `53`, `48`, `54`, `55`, `148` | req/rsp | `MainAction.get_Byte_Data_Req` | `tests/protocol/test_query_room_info.py` |
+| 查询设备详情 | `query_device_details.md` | 3 | 7 / 8 | `15=1/4`, `17`, `4`, `6`, `48` | req/rsp | `MainAction.get_Byte_Data_Req` | `tests/protocol/test_query_device_details.py` |
 
 ## 状态说明
 
@@ -17,6 +19,8 @@
 
 当前已完成：
 - 查询场景简表（证据等级：高）
+- 查询房间信息（证据等级：高）
+- 查询设备详情（证据等级：高）
 
 ## 维护规则
 
