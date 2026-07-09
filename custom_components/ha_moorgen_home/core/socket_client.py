@@ -74,7 +74,7 @@ class AsyncSocketClient:
 
         try:
             await asyncio.wait_for(self._connected_event.wait(), timeout=timeout)
-        except asyncio.TimeoutError as err:
+        except TimeoutError as err:
             raise ConnectionError(f"Connect timeout after {timeout}s") from err
 
     async def wait_for_scene_update(self, previous_version: int, timeout=5):

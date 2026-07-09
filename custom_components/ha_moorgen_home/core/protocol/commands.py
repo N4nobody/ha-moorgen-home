@@ -59,4 +59,3 @@ def activate_scene(scene_name):
         serialNum=0,
         fields=[{"type": 16, "value": 5}, {"type": 2, "value": scene_name}],
     )
-

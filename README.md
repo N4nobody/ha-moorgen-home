@@ -19,23 +19,24 @@ Moorgen/摩根主机的 Home Assistant 本地自定义集成（custom integratio
 
 ## 安装
 
-将本项目放置到 HA 的 `custom_components/ha_moorgen_home/` 目录中，目录结构示例：
+将仓库中的 `custom_components/ha_moorgen_home/` 目录复制到 HA 配置目录下：
 
 ```text
-custom_components/
-  ha_moorgen_home/
-    __init__.py
-    manifest.json
-    config_flow.py
-    button.py
-    const.py
-    core/
-      coordinator.py
-      socket_client.py
-      protocol/
-        commands.py
-        codec.py
-        models.py
+/config/
+  custom_components/
+    ha_moorgen_home/
+      __init__.py
+      manifest.json
+      config_flow.py
+      button.py
+      const.py
+      core/
+        coordinator.py
+        socket_client.py
+        protocol/
+          commands.py
+          codec.py
+          models.py
 ```
 
 然后重启 Home Assistant。
@@ -93,7 +94,7 @@ logger:
   - 普通故障：由 coordinator（10 秒）按需触发重连
   - 服务端主动断连：进入 10 分钟冷却，避免立刻抢回连接
 
-如需调整冷却时间，可修改 `core/socket_client.py` 中 `_kick_cooldown_seconds`。
+如需调整冷却时间，可修改 `custom_components/ha_moorgen_home/core/socket_client.py` 中 `_kick_cooldown_seconds`。
 
 ---
 

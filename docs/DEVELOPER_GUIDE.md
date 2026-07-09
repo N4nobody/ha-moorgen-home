@@ -6,18 +6,22 @@
 
 ## 1. 架构概览
 
+集成代码根目录：`custom_components/ha_moorgen_home/`
+
 核心链路：
 
-1. `config_flow.py` 接收 host/port 配置
-2. `__init__.py` 初始化 coordinator 并加载 `button` 平台
-3. `core/coordinator.py` 周期刷新数据（10s）
-4. `core/socket_client.py` 维护 TCP 连接、收发包
-5. `core/protocol/*` 负责协议模型、编解码、命令构造
-6. `button.py` 将场景映射为按钮实体并触发执行
+1. `custom_components/ha_moorgen_home/config_flow.py` 接收 host/port 配置
+2. `custom_components/ha_moorgen_home/__init__.py` 初始化 coordinator 并加载 `button` 平台
+3. `custom_components/ha_moorgen_home/core/coordinator.py` 周期刷新数据（10s）
+4. `custom_components/ha_moorgen_home/core/socket_client.py` 维护 TCP 连接、收发包
+5. `custom_components/ha_moorgen_home/core/protocol/*` 负责协议模型、编解码、命令构造
+6. `custom_components/ha_moorgen_home/button.py` 将场景映射为按钮实体并触发执行
 
 ---
 
 ## 2. 代码结构
+
+以下路径均相对 `custom_components/ha_moorgen_home/`：
 
 - `__init__.py`：集成入口与卸载
 - `config_flow.py`：UI 配置流程
@@ -90,8 +94,28 @@ pytest -q
 
 ---
 
-## 8. 建议后续优化
+## 8. 协议文档与测试组织
+
+协议分析已拆分到：`docs/protocol/`
+
+- 总览索引：`docs/protocol/README.md`
+- 文档模板：`docs/protocol/TEMPLATE.md`
+- 当前样例：`docs/protocol/query_scene_simple.md`
+
+对应单测放在：`tests/protocol/`
+
+- 当前样例测试：`tests/protocol/test_query_scene_simple.py`
+
+运行：
+
+```bash
+pytest tests/protocol -q
+```
+
+---
+
+## 9. 建议后续优化
 
 - 增加 config flow 连通性校验与唯一 ID
 - 增加 options flow（轮询间隔/冷却时间可配置）
-- 增加 diagnostics 与测试用例
+- 扩展协议单测（认证/设备列表/心跳/执行链路）

@@ -49,6 +49,7 @@ def parse_protocol_packet(data) -> DataPacket:
 
     return packet
 
+
 def build_protocol_packet(msgFlag, protoName, protoNum, protoType, linkCode, serialNum, fields):
     """
     Build a protocol packet from the given fields.
@@ -119,6 +120,7 @@ def build_protocol_packet(msgFlag, protoName, protoNum, protoType, linkCode, ser
     packet.extend(data_fields)  # variable length
     packet.append(0x23)
     return bytes(packet)
+
 
 def route(packet: DataPacket, data_dict: dict):
     _LOGGER.info(f"packet come {packet.proto_num} {packet.proto_type} {packet.link_code}")
@@ -196,4 +198,3 @@ def parse_scene_info(packet: DataPacket) -> list[SceneInfo]:
 
     _LOGGER.info(result)
     return result
-

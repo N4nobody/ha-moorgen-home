@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 
-
 data_types = [
     {"id": 792, "name": "ALIAS", "type": "number"},
     {"id": 531, "name": "APPID", "type": "string"},
@@ -328,4 +327,3 @@ class SceneInfo:
 @dataclass
 class DeviceInfo:
     id: str = ""
-
