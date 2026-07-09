@@ -7,6 +7,10 @@ from .protocol.codec import parse_protocol_packet, route
 _LOGGER = logging.getLogger(__name__)
 
 
+class ServerDisconnectedError(ConnectionError):
+    """Raised when server actively closes the socket."""
+
+
 class AsyncSocketClient:
     def __init__(self, host, port):
         self.host = host
@@ -20,6 +24,7 @@ class AsyncSocketClient:
         self._connected_event = asyncio.Event()
         self._scene_event = asyncio.Event()
         self._scene_version = 0
+        self._kick_cooldown_seconds = 600
         self.data = {"scenes": [], "rooms": [], "devices": []}
 
     @property
@@ -46,6 +51,12 @@ class AsyncSocketClient:
         await self._close_writer()
 
     async def wait_until_connected(self, timeout=5):
+        if (
+            not self._connected
+            and not self._stopped
+            and (self._connect_task is None or self._connect_task.done())
+        ):
+            await self.start()
         await asyncio.wait_for(self._connected_event.wait(), timeout=timeout)
 
     async def wait_for_scene_update(self, previous_version: int, timeout=5):
@@ -60,10 +71,19 @@ class AsyncSocketClient:
 
     async def _connect_loop(self):
         while not self._stopped:
+            should_retry = False
+            retry_delay = self._kick_cooldown_seconds
             try:
                 await self._connect_once()
             except asyncio.CancelledError:
                 raise
+            except ServerDisconnectedError as err:
+                _LOGGER.warning("[Connection error] %s", err)
+                should_retry = True
+                _LOGGER.warning(
+                    "Detected server-side disconnect, enter cooldown for %s seconds",
+                    retry_delay,
+                )
             except Exception as err:
                 _LOGGER.warning("[Connection error] %s", err)
             finally:
@@ -74,8 +94,14 @@ class AsyncSocketClient:
             if self._stopped:
                 break
 
-            _LOGGER.info("Connection lost, retrying in 2 seconds...")
-            await asyncio.sleep(2)
+            if not should_retry:
+                _LOGGER.info(
+                    "Connection loop paused. It will reconnect on next coordinator refresh."
+                )
+                break
+
+            _LOGGER.info("Connection lost, retrying in %s seconds...", retry_delay)
+            await asyncio.sleep(retry_delay)
 
     async def _connect_once(self):
         _LOGGER.info(f"Connecting to {self.host}:{self.port}")
@@ -103,7 +129,7 @@ class AsyncSocketClient:
         while not self._stopped:
             data = await self._reader.read(4096)
             if not data:
-                raise ConnectionError("Server closed the connection")
+                raise ServerDisconnectedError("Server closed the connection")
 
             buf += data
             while len(buf) > 3:
