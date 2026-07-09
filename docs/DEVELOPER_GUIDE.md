@@ -100,7 +100,7 @@ pytest -q
 
 - 总览索引：`docs/protocol/README.md`
 - 文档模板：`docs/protocol/TEMPLATE.md`
-- 当前样例：`docs/protocol/query_scene_simple.md`
+- 当前样例：`docs/protocol/query_scene_simple.md`、`docs/protocol/activate_scene.md`
 
 对应单测放在：`tests/protocol/`
 

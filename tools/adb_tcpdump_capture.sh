@@ -7,7 +7,7 @@ set -euo pipefail
 HOST="192.168.1.246"
 PORT="9000"
 IFACE="any"
-LOCAL_OUT=""
+LOCAL_OUT="resources/"
 USE_SU="1"
 TCPDUMP_BIN="tcpdump"
 
