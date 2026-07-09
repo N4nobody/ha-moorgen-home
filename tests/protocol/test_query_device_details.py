@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from custom_components.ha_moorgen_home.core.protocol.codec import (
     build_protocol_packet,
+    infer_device_type,
     parse_protocol_packet,
     route,
 )
@@ -824,3 +825,66 @@ def test_request_json_to_hex_uses_capture_raw_sample():
 def test_response_capture_hex_to_business_json():
     rsp_json = _response_hex_to_json(RSP_DEVICE_HEX)
     assert rsp_json == EXPECTED_RSP_JSON
+
+
+def test_device_type_inference_for_all_devices():
+    packet = parse_protocol_packet(bytes.fromhex(RSP_DEVICE_HEX))
+    data = {}
+    assert route(packet, data) == "devices"
+
+    actual = {
+        d.get("Device_Name"): infer_device_type(d)
+        for d in data.get("devices", [])
+    }
+
+    expected = {
+        "床头射灯": "light",
+        "右阅读灯": "light",
+        "灯带": "light",
+        "飘窗射灯": "light",
+        "左阅读灯": "light",
+        "2-4": "light",
+        "2-5": "light",
+        "2-60": "light",
+        "一键断电": "light",
+        "玄关灯带": "light",
+        "天花灯带": "light",
+        "客餐射灯": "light",
+        "客厅主灯": "light",
+        "餐厅主灯": "light",
+        "过道射灯": "light",
+        "主灯": "light",
+        "背景射灯": "light",
+        "玄关面板": "panel",
+        "客厅面板": "panel",
+        "主卧进门面板": "panel",
+        "主卧床头左": "panel",
+        "主卧床头右": "panel",
+        "客厅地暖": "floor_heating",
+        "客厅新风": "fresh_air",
+        "客厅空调": "air_conditioner",
+        "餐厅地暖": "floor_heating",
+        "餐厅新风": "fresh_air",
+        "餐厅空调": "air_conditioner",
+        "主卧地暖": "floor_heating",
+        "主卧新风": "fresh_air",
+        "主卧空调": "air_conditioner",
+        "北次卧1地暖": "floor_heating",
+        "北次卧1新风": "fresh_air",
+        "北次卧1空调": "air_conditioner",
+        "北次卧2地暖": "floor_heating",
+        "北次卧2新风": "fresh_air",
+        "北次卧2空调": "air_conditioner",
+        "南次卧地暖": "floor_heating",
+        "南次卧新风": "fresh_air",
+        "南次卧空调": "air_conditioner",
+        "新风-1": "fresh_air",
+        "客餐厅1": "hvac_group",
+        "北次卧2": "hvac_group",
+        "客餐厅2": "hvac_group",
+        "主卧": "hvac_group",
+        "书房": "hvac_group",
+        "南次卧": "hvac_group",
+    }
+
+    assert actual == expected

@@ -74,6 +74,14 @@ public byte[] get_Byte_Data_Req(int i2) {
 
 样本中可解析到设备名示例：`床头射灯`、`玄关面板`、`客厅地暖`。
 
+另外可基于 `Device_Desc` 进行类型推断（当前样本未直接给 `Device_Type(8)`）：
+- `r153` -> `panel`
+- `l110` -> `light`
+- `h110` -> `floor_heating`
+- `a160` -> `fresh_air`
+- `a170` -> `air_conditioner`
+- `a110` -> `hvac_group`
+
 ## 6. 单测映射
 
 测试文件：`tests/protocol/test_query_device_details.py`
@@ -91,4 +99,8 @@ public byte[] get_Byte_Data_Req(int i2) {
      - `device_count == 47`
      - `request_data_over == 1`
      - 路由到 `devices`
-     - 设备名称列表与预期 JSON 完全一致。
+     - 设备完整字段列表与预期 JSON 完全一致。
+
+3. **类型推断断言**
+   - 使用 `infer_device_type()` 对 47 个设备逐条推断。
+   - 断言设备名到类型的映射与预期一致。

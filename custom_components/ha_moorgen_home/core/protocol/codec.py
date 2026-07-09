@@ -159,6 +159,43 @@ def parse_room_info(packet: DataPacket) -> list[RoomInfo]:
     return result
 
 
+def _normalize_desc_text(value) -> str:
+    if isinstance(value, (bytes, bytearray)):
+        try:
+            return value.decode("utf-8", errors="ignore")
+        except Exception:
+            return ""
+    if isinstance(value, str):
+        return value
+    return ""
+
+
+def infer_device_type(device: dict) -> str:
+    """Infer high-level device type from parsed fields.
+
+    NOTE: current DATA_RSP_DEVICE sample does not always carry explicit Device_Type(8),
+    so this inference relies on Device_Desc pattern and name fallback.
+    """
+
+    desc = _normalize_desc_text(device.get("Device_Desc", ""))
+    name = str(device.get("Device_Name", ""))
+
+    if "r153" in desc:
+        return "panel"
+    if "l110" in desc:
+        return "light"
+    if "h110" in desc:
+        return "floor_heating"
+    if "a160" in desc:
+        return "fresh_air"
+    if "a170" in desc:
+        return "air_conditioner"
+    if "a110" in desc:
+        return "hvac_group"
+
+    return "unknown"
+
+
 def parse_device_info(packet: DataPacket):
     devices = []
     current = {}
