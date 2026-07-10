@@ -1,19 +1,20 @@
 # ha-moorgen-home
 
-Moorgen/摩根主机的 Home Assistant 本地自定义集成（custom integration）。
+这是一个用于 Home Assistant 的 Moorgen（摩根全屋智能）本地自定义集成。
 
-> 面向开发者的技术文档见：`docs/DEVELOPER_GUIDE.md`  
-> AI/自动化协作约束见：`agent.md`
+Moorgen 是全屋智能品牌，提供智能主机、照明与场景控制等能力。官网：<https://www.moorgen.com/>
 
----
+面向开发者的技术文档见：`docs/DEVELOPER_GUIDE.md`  
+AI/自动化协作约束见：`agent.md`
 
-## 支持能力（用户视角）
+## 支持能力
 
-- 场景映射为 HA `button` 实体（点击触发场景）
-- 普通灯映射为 HA `light` 实体（开/关）
-- 调光灯映射为 HA `light` 实体（亮度 0~100%，HA 中显示为 0~255）
+当前版本仅支持基础能力，主要是：
 
----
+- 场景控制（映射为 HA `button` 实体）
+- 开关/灯光面板相关控制（映射为 HA `light` 实体）
+  - 普通灯：开/关
+  - 调光灯：亮度 0~100%（HA 中显示为 0~255）
 
 ## 安装
 
@@ -39,8 +40,6 @@ Moorgen/摩根主机的 Home Assistant 本地自定义集成（custom integratio
 
 然后重启 Home Assistant。
 
----
-
 ## 添加集成
 
 在 Home Assistant 中：
@@ -52,8 +51,6 @@ Moorgen/摩根主机的 Home Assistant 本地自定义集成（custom integratio
    - `host`：摩根主机 IP（如 `192.168.1.246`）
    - `port`：端口（默认 `9000`）
 
----
-
 ## 使用方式
 
 - 初始化后会创建：
@@ -63,7 +60,24 @@ Moorgen/摩根主机的 Home Assistant 本地自定义集成（custom integratio
   - 点击按钮触发对应场景
   - 对灯实体执行开/关或亮度控制（调光灯）
 
----
+## 使用界面截图
+
+以下为当前接入与使用页面截图：
+
+### 添加与配置
+
+![添加与配置 1](docs/images/usage/001.png)
+![添加与配置 2](docs/images/usage/002.png)
+
+### 实体与控制
+
+![实体与控制 1](docs/images/usage/003.png)
+![实体与控制 2](docs/images/usage/004.png)
+
+### 页面展示
+
+![页面展示 1](docs/images/usage/005.png)
+![页面展示 2](docs/images/usage/006.png)
 
 ## 日志配置
 
@@ -76,13 +90,9 @@ logger:
     custom_components.ha_moorgen_home: info
 ```
 
----
-
 ## 更新插件
 
 本地手动更新代码后，建议重启 HA Core 以确保新代码完全生效。
-
----
 
 ## 许可证
 
