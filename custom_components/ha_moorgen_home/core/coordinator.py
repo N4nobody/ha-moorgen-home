@@ -7,6 +7,7 @@ from .protocol.commands import (
     activate_scene,
     control_device,
     query_device_details,
+    query_room_info,
     query_scene_details,
 )
 from .refresh_scheduler import RefreshScheduler
@@ -30,7 +31,7 @@ class MoorgenDataCoordinator(DataUpdateCoordinator):
         self._refresh_scheduler = RefreshScheduler(
             hass,
             trigger_refresh=self.async_refresh,
-            delay_seconds=1.0,
+            delay_seconds=2.0,
             min_interval_seconds=1.0,
         )
         self.client = AsyncSocketClient(
@@ -73,6 +74,7 @@ class MoorgenDataCoordinator(DataUpdateCoordinator):
             previous_scene_version = self.client.scene_version
             previous_device_version = self.client.device_version
 
+            await self.client.send_command(query_room_info())
             await self.client.send_command(query_scene_details())
             await self.client.send_command(query_device_details())
 
