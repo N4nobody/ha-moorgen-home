@@ -6,8 +6,8 @@
 
 ## 0. 文档分工（单一事实源）
 
-- `README.md`：面向使用者（安装、配置、运行与排障入口）。
-- `docs/DEVELOPER_GUIDE.md`：面向开发者（开发规范与测试规范**权威来源**）。
+- `README.md`：**仅面向使用者**（安装、配置、运行、日志与更新）。不放架构设计、刷新策略、重连策略等实现细节。
+- `docs/DEVELOPER_GUIDE.md`：面向开发者（架构设计、实现细节、开发规范与测试规范**权威来源**）。
 - `agent.md`：面向 AI/自动化协作的执行约束（简版规则，引用本指南）。
 - `docs/protocol/README.md`：协议业务索引与状态面板。
 - `docs/protocol/TEMPLATE.md`：新增协议文档模板。
@@ -54,6 +54,7 @@
 
 - 普通连接异常：不在 socket 层快速死循环重连；等待下次 coordinator 刷新触发按需连接。
 - 服务端主动断开（`ServerDisconnectedError`）：进入冷却期（默认 600 秒）。
+- 冷却时间可在 `custom_components/ha_moorgen_home/core/socket_client.py` 的 `_kick_cooldown_seconds` 调整。
 
 目的：避免调试期间 HA 频繁抢占连接。
 

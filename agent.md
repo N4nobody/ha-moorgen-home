@@ -2,6 +2,12 @@
 
 本文件仅保留 AI/自动化协作的执行约束。
 
+## 文档边界约束
+
+1. `README.md` 仅保留面向用户的用法信息（安装、配置、使用、日志、更新）。
+2. 所有设计与实现细节（架构、协议、刷新策略、重连策略等）统一维护在 `docs/DEVELOPER_GUIDE.md`。
+3. 当 README 出现设计细节时，应迁移到 `docs/DEVELOPER_GUIDE.md`，并保持 README 精简。
+
 ## 协议测试执行约束
 
 1. 协议测试规范以 `docs/DEVELOPER_GUIDE.md` 第 `9.1` 节为准。
