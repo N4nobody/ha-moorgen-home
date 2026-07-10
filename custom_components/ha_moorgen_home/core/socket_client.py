@@ -168,13 +168,31 @@ class AsyncSocketClient:
                 raise ServerDisconnectedError("Server closed the connection")
 
             buf += data
-            while len(buf) > 3:
+            while len(buf) >= 3:
+                start = buf.find(b"\x23")
+                if start < 0:
+                    buf = b""
+                    break
+                if start > 0:
+                    buf = buf[start:]
+                    if len(buf) < 3:
+                        break
+
                 pkt_len = buf[1] + (buf[2] << 8)
                 full_len = pkt_len + 3
+
+                if full_len < 19:
+                    buf = buf[1:]
+                    continue
+
                 if len(buf) < full_len:
                     break
 
                 pkt = buf[:full_len]
+                if pkt[-1] != 0x23:
+                    buf = buf[1:]
+                    continue
+
                 buf = buf[full_len:]
 
                 try:
@@ -187,7 +205,11 @@ class AsyncSocketClient:
                         self._device_version += 1
                         self._device_event.set()
                 except Exception as err:
-                    _LOGGER.warning("[Packet handling error] %s", err)
+                    _LOGGER.warning(
+                        "[Packet handling error] %s, packet_hex=%s",
+                        err,
+                        pkt.hex(),
+                    )
 
     async def send_command(self, data: bytes):
         """Send raw bytes to the server."""

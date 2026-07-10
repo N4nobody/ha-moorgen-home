@@ -8,12 +8,16 @@ _LOGGER = logging.getLogger(__name__)
 def parse_protocol_packet(data) -> DataPacket:
     if len(data) < 19:
         raise ValueError("Packet is too short to parse")
+    if data[0] != 0x23:
+        raise ValueError("Invalid packet start flag")
+    if data[-1] != 0x23:
+        raise ValueError("Invalid packet end flag")
 
     packet = DataPacket()
 
     packet.msg_flag = data[0]
     packet.length = data[1] + (data[2] << 8)
-    packet.proto_name = data[3:12].decode()
+    packet.proto_name = data[3:12].decode("ascii", errors="replace")
     packet.proto_num = data[12]
     packet.proto_type = data[13]
     packet.link_code = data[14]
