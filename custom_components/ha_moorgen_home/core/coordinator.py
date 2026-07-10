@@ -31,7 +31,7 @@ class MoorgenDataCoordinator(DataUpdateCoordinator):
         self._refresh_scheduler = RefreshScheduler(
             hass,
             trigger_refresh=self.async_refresh,
-            delay_seconds=2.0,
+            delay_seconds=4.0,
             min_interval_seconds=1.0,
         )
         self.client = AsyncSocketClient(
