@@ -1,7 +1,7 @@
 import logging
 
 from .const import COORDINATOR, DOMAIN
-from .core.coordinator import FurnitureLightsCoordinator
+from .core.coordinator import MoorgenDataCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["button", "light"]
@@ -12,7 +12,7 @@ async def async_setup_entry(hass, config_entry):
         hass.data[DOMAIN] = {}
 
     _LOGGER.info(f"config entry is {config_entry.data}")
-    coordinator = FurnitureLightsCoordinator(hass, config_entry)
+    coordinator = MoorgenDataCoordinator(hass, config_entry)
 
     await coordinator.async_config_entry_first_refresh()
 

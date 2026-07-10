@@ -14,7 +14,10 @@ Moorgen/摩根主机的 Home Assistant 本地自定义集成（custom integratio
 - **IOT Class**: `local_polling`
 - **Version**: `0.1.0`
 
-该插件用于将 Moorgen 主机接入 Home Assistant，并把主机场景映射为 HA 的 `button` 实体；点击按钮即可触发场景。
+该插件用于将 Moorgen 主机接入 Home Assistant，目前已支持：
+
+- 主机场景映射为 HA 的 `button` 实体（点击触发场景）
+- 普通灯设备映射为 HA 的 `light` 实体（开/关）
 
 ---
 
@@ -59,8 +62,12 @@ Moorgen/摩根主机的 Home Assistant 本地自定义集成（custom integratio
 
 ## 使用方式
 
-- 集成初始化后会创建多个按钮实体（每个场景一个按钮）。
-- 在仪表盘或实体页点击按钮，即可触发对应场景。
+- 集成初始化后会创建：
+  - 多个按钮实体（每个场景一个按钮）
+  - 多个灯实体（已识别为 light 类型的摩根设备）
+- 在仪表盘或实体页：
+  - 点击按钮触发对应场景
+  - 对灯实体执行开/关控制
 
 ---
 
@@ -83,6 +90,16 @@ logger:
   logs:
     custom_components.ha_moorgen_home: debug
 ```
+
+---
+
+## 状态同步策略
+
+- 兜底轮询：coordinator 默认每 10 秒刷新（`update_interval=10s`）。
+- 首次刷新：会等待场景/设备数据更新完成，保证首次实体构建尽量完整。
+- 操作后加速刷新：每次场景执行或灯开关操作后，会在 `1s/2s/4s` 触发额外刷新。
+- 刷新合并与限流：多次操作触发的刷新会合并，且手动触发刷新最小间隔不小于 `1s`。
+- 当前未接入设备推送直驱实体状态（`proto_type=5/link=12`），状态以主动拉取为准。
 
 ---
 
