@@ -128,7 +128,11 @@ class MoorgenDataCoordinator(DataUpdateCoordinator):
         """Refresh data from the host asynchronously."""
         try:
             if not self._first_refresh_completed:
-                data = await self._async_query_and_wait(timeout=5, strict=True)
+                try:
+                    data = await self._async_query_and_wait(timeout=5, strict=True)
+                except TimeoutError as ex:
+                    _LOGGER.warning("first refresh ack timeout, fallback to no-wait: %r", ex)
+                    data = await self._async_query_no_wait()
                 self._first_refresh_completed = True
             else:
                 data = await self._async_query_no_wait()
@@ -141,9 +145,7 @@ class MoorgenDataCoordinator(DataUpdateCoordinator):
             )
             return data
         except TimeoutError as ex:
-            _LOGGER.warning("data refresh timeout, reconnect socket: %r", ex)
-            await self.client.stop()
-            await self.client.start()
+            _LOGGER.warning("data refresh timeout: %r", ex)
             return self.client.data
         except ConnectionError as ex:
             _LOGGER.info("skip refresh while disconnected: %s", ex)
