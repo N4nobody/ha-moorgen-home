@@ -18,6 +18,7 @@ Moorgen/摩根主机的 Home Assistant 本地自定义集成（custom integratio
 
 - 主机场景映射为 HA 的 `button` 实体（点击触发场景）
 - 普通灯设备映射为 HA 的 `light` 实体（开/关）
+- 调光灯设备映射为 HA 的 `light` 实体（亮度 0~100%，在 HA 中按 0~255 显示）
 
 ---
 

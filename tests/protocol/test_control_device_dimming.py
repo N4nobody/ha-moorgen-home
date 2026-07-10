@@ -6,6 +6,7 @@ from custom_components.ha_moorgen_home.core.protocol.codec import (
     build_protocol_packet,
     parse_protocol_packet,
 )
+from custom_components.ha_moorgen_home.core.protocol.commands import control_device_dimming
 
 from tests.protocol._shared import extract_tlv_value_bytes
 from tests.protocol.fixtures.control_device_dimming_assets import (
@@ -112,6 +113,15 @@ def test_control_device_dimming_request_encode_decode_matches_expected():
 
     assert _request_hex_to_json(REQ_DIM_100_HEX) == EXPECTED_REQ_100_JSON
     assert _request_hex_to_json(REQ_DIM_0_HEX) == EXPECTED_REQ_0_JSON
+
+    assert control_device_dimming(18374967954648268821, 100).hex() == (
+        "233f00646f6f79617368637001040900002e001000010001040008001500ffffffff00ff"
+        "0900140072616e646f6d2d6c696768742d64696d6d696e670a0001006423"
+    )
+    assert control_device_dimming(18374967954648268821, 0).hex() == (
+        "233f00646f6f79617368637001040900002e001000010001040008001500ffffffff00ff"
+        "0900140072616e646f6d2d6c696768742d64696d6d696e670a0001000023"
+    )
 
 
 def test_control_device_dimming_request_level_sequence_matches_expected():

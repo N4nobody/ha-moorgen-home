@@ -7,6 +7,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .protocol.commands import (
     activate_scene,
     control_device,
+    control_device_dimming,
     query_device_details,
     query_room_info,
     query_scene_details,
@@ -66,6 +67,13 @@ class MoorgenDataCoordinator(DataUpdateCoordinator):
         _LOGGER.info("turn off device %s", device_mac)
         await self.client.wait_until_connected(timeout=5)
         await self.client.send_command(control_device(device_mac, "light-off"))
+        self._refresh_scheduler.schedule_post_operation()
+
+    async def set_device_brightness(self, device_mac: int, level: int):
+        level = max(0, min(100, int(level)))
+        _LOGGER.info("set device %s brightness to %s", device_mac, level)
+        await self.client.wait_until_connected(timeout=5)
+        await self.client.send_command(control_device_dimming(device_mac, level))
         self._refresh_scheduler.schedule_post_operation()
 
     async def _async_query_and_wait(self, timeout: int, strict: bool):

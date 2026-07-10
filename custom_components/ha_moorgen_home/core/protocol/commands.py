@@ -76,3 +76,21 @@ def control_device(device_mac: int, device_cmd: str):
             {"type": 9, "value": cmd_numeric},
         ],
     )
+
+
+def control_device_dimming(device_mac: int, level: int):
+    level = max(0, min(100, int(level)))
+    return build_protocol_packet(
+        msgFlag=0x23,
+        protoName="dooyashcp",
+        protoNum=1,
+        protoType=4,
+        linkCode=9,
+        serialNum=0,
+        fields=[
+            {"type": 16, "value": 1},
+            {"type": 4, "value": device_mac},
+            {"type": 9, "value": int.from_bytes("random-light-dimming".encode("utf-8"), "little")},
+            {"type": 10, "value": chr(level)},
+        ],
+    )

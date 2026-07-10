@@ -170,8 +170,8 @@
    - `Device_State(11)` 在亮度 0 时变为 0，否则为 1
    - `PANEL_STATE(151) & 0xFF == brightness`
 4. 命令函数固定包断言
-   - 当前 `commands.py` 尚未提供 `control_device_dimming(device_mac, level)`，
-     后续新增时建议补充默认 `serial=0` 固定构包断言。
+   - 已提供 `commands.py::control_device_dimming(device_mac, level)`，
+     并在 `tests/protocol/test_control_device_dimming.py` 增加默认 `serial=0` 固定构包断言。
 
 ---
 

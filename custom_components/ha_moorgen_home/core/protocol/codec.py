@@ -197,7 +197,9 @@ def infer_device_type(device: dict) -> str:
     name = str(device.get("Device_Name", ""))
 
     if "r153" in desc:
-        return "panel"
+        if "面板" in name:
+            return "panel"
+        return "light_dimmer"
     if "l110" in desc:
         return "light"
     if "h110" in desc:
