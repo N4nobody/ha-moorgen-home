@@ -32,7 +32,4 @@ class VirtualSceneButton(CoordinatorEntity, ButtonEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        _LOGGER.info(
-            f"_handle_coordinator_update come , entity_id is {self.entity_id}, data is {self.coordinator.data}"
-        )
         super()._handle_coordinator_update()
