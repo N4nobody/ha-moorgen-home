@@ -4,6 +4,16 @@
 
 ---
 
+## 0. 文档分工（单一事实源）
+
+- `README.md`：面向使用者（安装、配置、运行与排障入口）。
+- `docs/DEVELOPER_GUIDE.md`：面向开发者（开发规范与测试规范**权威来源**）。
+- `agent.md`：面向 AI/自动化协作的执行约束（简版规则，引用本指南）。
+- `docs/protocol/README.md`：协议业务索引与状态面板。
+- `docs/protocol/TEMPLATE.md`：新增协议文档模板。
+
+---
+
 ## 1. 架构概览
 
 集成代码根目录：`custom_components/ha_moorgen_home/`
@@ -96,21 +106,34 @@ pytest -q
 
 ## 8. 协议文档与测试组织
 
-协议分析已拆分到：`docs/protocol/`
+协议分析目录：`docs/protocol/`
 
 - 总览索引：`docs/protocol/README.md`
 - 文档模板：`docs/protocol/TEMPLATE.md`
-- 当前样例：`docs/protocol/query_scene_simple.md`、`docs/protocol/activate_scene.md`
 
-对应单测放在：`tests/protocol/`
+协议测试目录：`tests/protocol/`
 
-- 当前样例测试：`tests/protocol/test_query_scene_simple.py`
+- 业务测试：`test_*.py`
+- 测试资产：`fixtures/`（固化请求/响应 HEX 与业务 JSON）
+- 通用工具：`_shared.py`
 
 运行：
 
 ```bash
 pytest tests/protocol -q
 ```
+
+### 8.1 协议测试规范（权威）
+
+1. 禁止在测试执行路径中读取/解析 pcap（仅允许离线提取后固化为常量）。
+2. 样本资产统一放在 `tests/protocol/fixtures/`；测试逻辑文件通过 import 使用。
+3. 每个协议测试至少覆盖：
+   - 请求 `JSON -> HEX` 对齐抓包样本
+   - 请求 `HEX -> JSON` 反解
+   - 响应 `HEX -> JSON` 反解
+   - 命令函数默认包断言（如适用）
+4. 响应 JSON 断言应尽量完整保留可解析字段（未知字段使用 `unknown_<id>`）。
+5. 测试命名遵循：`test_<biz>_<phase>_<expected>`（如 `request_encode_decode...`）。
 
 ---
 

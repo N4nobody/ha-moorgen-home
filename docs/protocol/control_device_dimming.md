@@ -154,11 +154,11 @@
 
 ---
 
-## 4. 测试建议（按 `agent.md`）
+## 4. 测试映射（按 `agent.md`）
 
-建议新增：`tests/protocol/test_control_device_dimming.py`
+已实现：`tests/protocol/test_control_device_dimming.py`
 
-建议覆盖 4 类断言：
+当前覆盖 4 类断言：
 
 1. `JSON -> HEX`（请求编码）
    - 100% 与 0% 的请求构包分别等于帧18/30 的 HEX。
@@ -170,8 +170,8 @@
    - `Device_State(11)` 在亮度 0 时变为 0，否则为 1
    - `PANEL_STATE(151) & 0xFF == brightness`
 4. 命令函数固定包断言
-   - 若后续在 `commands.py` 新增 `control_device_dimming(device_mac, level)`，
-     断言默认 serial=0 的固定构包。
+   - 当前 `commands.py` 尚未提供 `control_device_dimming(device_mac, level)`，
+     后续新增时建议补充默认 `serial=0` 固定构包断言。
 
 ---
 

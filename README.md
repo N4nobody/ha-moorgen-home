@@ -2,7 +2,8 @@
 
 Moorgen/摩根主机的 Home Assistant 本地自定义集成（custom integration）。
 
-> 面向开发者的技术文档见：`docs/DEVELOPER_GUIDE.md`
+> 面向开发者的技术文档与规范见：`docs/DEVELOPER_GUIDE.md`  
+> AI/自动化协作约束见：`agent.md`
 
 ---
 

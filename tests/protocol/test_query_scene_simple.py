@@ -116,7 +116,7 @@ def _response_hex_to_json(packet_hex: str) -> dict:
     }
 
 
-def test_request_json_to_hex_uses_capture_raw_sample():
+def test_query_scene_simple_request_encode_decode_and_command_default_serial():
     # JSON -> HEX（与抓包原样一致）
     req_hex = _request_json_to_hex(EXPECTED_REQ_JSON)
     assert req_hex == REQ_SCENE_SIMPLE_HEX
@@ -129,6 +129,6 @@ def test_request_json_to_hex_uses_capture_raw_sample():
     assert req_json_back == EXPECTED_REQ_JSON
 
 
-def test_response_capture_hex_to_business_json():
+def test_query_scene_simple_response_decode_matches_expected_json():
     rsp_json = _response_hex_to_json(RSP_SCENE_SIMPLE_HEX)
     assert rsp_json == EXPECTED_RSP_JSON

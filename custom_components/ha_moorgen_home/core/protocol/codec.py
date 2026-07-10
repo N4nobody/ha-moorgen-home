@@ -193,6 +193,18 @@ def infer_device_type(device: dict) -> str:
     if "a110" in desc:
         return "hvac_group"
 
+    # Fallback for partial device records that may miss Device_Desc in some samples.
+    if any(k in name for k in ("面板",)):
+        return "panel"
+    if any(k in name for k in ("地暖",)):
+        return "floor_heating"
+    if any(k in name for k in ("新风",)):
+        return "fresh_air"
+    if any(k in name for k in ("空调",)):
+        return "air_conditioner"
+    if any(k in name for k in ("灯", "射灯", "灯带", "阅读灯")):
+        return "light"
+
     return "unknown"
 
 

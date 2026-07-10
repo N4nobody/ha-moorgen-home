@@ -97,7 +97,7 @@ def _push_hex_to_json(packet_hex: str) -> dict:
 
 
 
-def test_activate_scene_request_json_to_hex_uses_capture_raw_sample():
+def test_activate_scene_request_encode_decode_and_command_default_serial():
     # JSON -> HEX（与抓包原样一致）
     req_on_hex = _request_json_to_hex(EXPECTED_REQ_ON_JSON)
     req_off_hex = _request_json_to_hex(EXPECTED_REQ_OFF_JSON)
@@ -115,7 +115,7 @@ def test_activate_scene_request_json_to_hex_uses_capture_raw_sample():
 
 
 
-def test_activate_scene_push_hex_to_business_json():
+def test_activate_scene_push_decode_matches_expected_json():
     on_push_json = _push_hex_to_json(PUSH_SCENE_ON_HEX)
     off_push_json = _push_hex_to_json(PUSH_SCENE_OFF_HEX)
 
