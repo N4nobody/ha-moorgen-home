@@ -79,7 +79,12 @@ class MoorgenDataCoordinator(DataUpdateCoordinator):
                 await self.client.wait_for_device_update(previous_device_version, timeout=5)
                 self._first_refresh_completed = True
 
-            _LOGGER.info("async update result is %s", self.client.data)
+            _LOGGER.info(
+                "async update result: scenes=%s, rooms=%s, devices=%s",
+                len(self.client.data.get("scenes", [])),
+                len(self.client.data.get("rooms", [])),
+                len(self.client.data.get("devices", [])),
+            )
             return self.client.data
         except TimeoutError as ex:
             _LOGGER.warning("data refresh timeout, reconnect socket: %r", ex)

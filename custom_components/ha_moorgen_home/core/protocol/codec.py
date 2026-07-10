@@ -132,7 +132,7 @@ def route(packet: DataPacket, data_dict: dict):
             if datareq_type == 12:
                 rooms = parse_room_info(packet)
                 if rooms != data_dict.get("rooms", []):
-                    _LOGGER.info("room info updated: %s", rooms)
+                    _LOGGER.info("room info updated, count=%s", len(rooms))
                 else:
                     _LOGGER.info("room info unchanged, count=%s", len(rooms))
                 data_dict["rooms"] = rooms
@@ -140,7 +140,7 @@ def route(packet: DataPacket, data_dict: dict):
             if datareq_type == 4:
                 devices = parse_device_info(packet)
                 if devices != data_dict.get("devices", []):
-                    _LOGGER.info("device info updated: %s", devices)
+                    _LOGGER.info("device info updated, count=%s", len(devices))
                 else:
                     _LOGGER.info("device info unchanged, count=%s", len(devices))
                 data_dict["devices"] = devices
@@ -148,7 +148,7 @@ def route(packet: DataPacket, data_dict: dict):
             if datareq_type == 18:
                 scenes = parse_scene_info(packet)
                 if scenes != data_dict.get("scenes", []):
-                    _LOGGER.info("scene info updated: %s", scenes)
+                    _LOGGER.info("scene info updated, count=%s", len(scenes))
                 else:
                     _LOGGER.info("scene info unchanged, count=%s", len(scenes))
                 data_dict["scenes"] = scenes
