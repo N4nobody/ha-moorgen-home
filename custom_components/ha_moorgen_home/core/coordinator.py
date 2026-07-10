@@ -27,16 +27,18 @@ class MoorgenDataCoordinator(DataUpdateCoordinator):
             always_update=True,
         )
 
-        self.client = AsyncSocketClient(
-            config_entry.data.get("host"), config_entry.data.get("port")
-        )
-        self._first_refresh_completed = False
         self._refresh_scheduler = RefreshScheduler(
             hass,
             trigger_refresh=self.async_refresh,
-            delays=(1, 2, 4),
+            delay_seconds=1.0,
             min_interval_seconds=1.0,
         )
+        self.client = AsyncSocketClient(
+            config_entry.data.get("host"),
+            config_entry.data.get("port"),
+            on_server_push=self._refresh_scheduler.schedule_on_server_push,
+        )
+        self._first_refresh_completed = False
 
     async def _async_setup(self):
         await self.client.start()

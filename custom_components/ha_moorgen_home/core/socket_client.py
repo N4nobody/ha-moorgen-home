@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from collections.abc import Callable
 from contextlib import suppress
 
 from .protocol.codec import parse_protocol_packet, route
@@ -12,9 +13,10 @@ class ServerDisconnectedError(ConnectionError):
 
 
 class AsyncSocketClient:
-    def __init__(self, host, port):
+    def __init__(self, host, port, on_server_push: Callable[[], None] | None = None):
         self.host = host
         self.port = port
+        self._on_server_push = on_server_push
         self._reader = None
         self._writer = None
         self._lock = asyncio.Lock()
@@ -197,6 +199,14 @@ class AsyncSocketClient:
 
                 try:
                     data_packet = parse_protocol_packet(pkt)
+                    if (
+                        data_packet.proto_num == 1
+                        and data_packet.proto_type == 5
+                        and data_packet.link_code == 12
+                        and self._on_server_push is not None
+                    ):
+                        self._on_server_push()
+
                     updated = route(data_packet, self.data)
                     if updated == "scenes":
                         self._scene_version += 1
