@@ -24,6 +24,8 @@ class AsyncSocketClient:
         self._connected_event = asyncio.Event()
         self._scene_event = asyncio.Event()
         self._scene_version = 0
+        self._device_event = asyncio.Event()
+        self._device_version = 0
         self._kick_cooldown_seconds = 600
         self._cooldown_until = 0.0
         self.data = {"scenes": [], "rooms": [], "devices": []}
@@ -31,6 +33,10 @@ class AsyncSocketClient:
     @property
     def scene_version(self):
         return self._scene_version
+
+    @property
+    def device_version(self):
+        return self._device_version
 
     @property
     def cooldown_remaining_seconds(self) -> int:
@@ -86,6 +92,16 @@ class AsyncSocketClient:
             return
 
         await asyncio.wait_for(self._scene_event.wait(), timeout=timeout)
+
+    async def wait_for_device_update(self, previous_version: int, timeout=5):
+        if self._device_version > previous_version:
+            return
+
+        self._device_event.clear()
+        if self._device_version > previous_version:
+            return
+
+        await asyncio.wait_for(self._device_event.wait(), timeout=timeout)
 
     async def _connect_loop(self):
         while not self._stopped:
@@ -167,6 +183,9 @@ class AsyncSocketClient:
                     if updated == "scenes":
                         self._scene_version += 1
                         self._scene_event.set()
+                    if updated == "devices":
+                        self._device_version += 1
+                        self._device_event.set()
                 except Exception as err:
                     _LOGGER.warning("[Packet handling error] %s", err)
 
