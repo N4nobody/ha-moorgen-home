@@ -33,7 +33,7 @@ class MoorgenDataCoordinator(DataUpdateCoordinator):
         self._first_refresh_completed = False
         self._refresh_scheduler = RefreshScheduler(
             hass,
-            trigger_refresh=self.async_request_refresh,
+            trigger_refresh=self.async_refresh,
             delays=(1, 2, 4),
             min_interval_seconds=1.0,
         )
@@ -87,7 +87,7 @@ class MoorgenDataCoordinator(DataUpdateCoordinator):
             await self.client.start()
             return self.client.data
         except ConnectionError as ex:
-            _LOGGER.debug("skip refresh while disconnected: %s", ex)
+            _LOGGER.info("skip refresh while disconnected: %s", ex)
             return self.client.data
         except Exception as ex:
             _LOGGER.warning("async update failed: %r", ex)

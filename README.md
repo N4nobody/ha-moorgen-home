@@ -73,22 +73,13 @@ Moorgen/摩根主机的 Home Assistant 本地自定义集成（custom integratio
 
 ## 日志配置
 
-默认 HA 日志级别是 `warning`。如需查看本插件日志，可在 `configuration.yaml` 配置：
+建议本插件日志级别使用 `info`（仅输出 `info`/`warning`）。可在 `configuration.yaml` 配置：
 
 ```yaml
 logger:
   default: warning
   logs:
     custom_components.ha_moorgen_home: info
-```
-
-更详细可用 `debug`：
-
-```yaml
-logger:
-  default: warning
-  logs:
-    custom_components.ha_moorgen_home: debug
 ```
 
 ---

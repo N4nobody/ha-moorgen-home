@@ -130,16 +130,28 @@ def route(packet: DataPacket, data_dict: dict):
         if datareq_field is not None:
             datareq_type = datareq_field.value
             if datareq_type == 12:
-                _LOGGER.info("room info come")
-                data_dict["rooms"] = parse_room_info(packet)
+                rooms = parse_room_info(packet)
+                if rooms != data_dict.get("rooms", []):
+                    _LOGGER.info("room info updated: %s", rooms)
+                else:
+                    _LOGGER.info("room info unchanged, count=%s", len(rooms))
+                data_dict["rooms"] = rooms
                 return "rooms"
             if datareq_type == 4:
-                _LOGGER.info("device info come")
-                data_dict["devices"] = parse_device_info(packet)
+                devices = parse_device_info(packet)
+                if devices != data_dict.get("devices", []):
+                    _LOGGER.info("device info updated: %s", devices)
+                else:
+                    _LOGGER.info("device info unchanged, count=%s", len(devices))
+                data_dict["devices"] = devices
                 return "devices"
             if datareq_type == 18:
-                _LOGGER.info("scene info come")
-                data_dict["scenes"] = parse_scene_info(packet)
+                scenes = parse_scene_info(packet)
+                if scenes != data_dict.get("scenes", []):
+                    _LOGGER.info("scene info updated: %s", scenes)
+                else:
+                    _LOGGER.info("scene info unchanged, count=%s", len(scenes))
+                data_dict["scenes"] = scenes
                 return "scenes"
 
     return None
@@ -223,7 +235,6 @@ def parse_device_info(packet: DataPacket):
     if current:
         devices.append(current)
 
-    _LOGGER.info(devices)
     return devices
 
 
@@ -250,5 +261,4 @@ def parse_scene_info(packet: DataPacket) -> list[SceneInfo]:
         info.image = scene["Scene_Icon"]
         result.append(info)
 
-    _LOGGER.info(result)
     return result
