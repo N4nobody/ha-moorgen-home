@@ -1,10 +1,11 @@
 import logging
 
 from homeassistant.components.light import ATTR_BRIGHTNESS, ColorMode, LightEntity
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import COORDINATOR, DOMAIN
-from .core.protocol.codec import infer_device_type
+from .core.protocol.codec import device_room_id, infer_device_type
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -12,6 +13,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass, config_entry, async_add_entities):
     coordinator = hass.data[DOMAIN][COORDINATOR]
     entities = []
+    room_names = {room.id: room.name for room in coordinator.data.get("rooms", [])}
 
     for device in coordinator.data["devices"]:
         dtype = infer_device_type(device)
@@ -29,6 +31,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
                 device_mac,
                 device_name,
                 supports_brightness=dtype == "light_dimmer",
+                area=room_names.get(device_room_id(device)),
             )
         )
 
@@ -37,7 +40,17 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 
 class MoorgenLightEntity(CoordinatorEntity, LightEntity):
-    def __init__(self, coordinator, device_mac: int, name: str, supports_brightness: bool):
+    _attr_has_entity_name = True
+    _attr_name = None
+
+    def __init__(
+        self,
+        coordinator,
+        device_mac: int,
+        name: str,
+        supports_brightness: bool,
+        area: str | None = None,
+    ):
         super().__init__(coordinator, context=str(device_mac))
         self._device_mac = device_mac
         self._supports_brightness = supports_brightness
@@ -46,7 +59,13 @@ class MoorgenLightEntity(CoordinatorEntity, LightEntity):
         )
         self._attr_color_mode = ColorMode.BRIGHTNESS if supports_brightness else ColorMode.ONOFF
         self._attr_unique_id = f"moorgen_light_{device_mac}"
-        self._attr_name = name
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, str(device_mac))},
+            name=name,
+            manufacturer="Moorgen",
+            model="Dimmer" if supports_brightness else "Light",
+            suggested_area=area,
+        )
 
     @property
     def _device(self) -> dict | None:

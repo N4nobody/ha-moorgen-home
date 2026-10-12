@@ -4,7 +4,7 @@ from .const import COORDINATOR, DOMAIN
 from .core.coordinator import MoorgenDataCoordinator
 
 _LOGGER = logging.getLogger(__name__)
-PLATFORMS = ["button", "light"]
+PLATFORMS = ["button", "climate", "cover", "light", "sensor"]
 
 
 async def async_setup_entry(hass, config_entry):
