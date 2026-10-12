@@ -137,7 +137,7 @@ class MoorgenAirconClimate(CoordinatorEntity, ClimateEntity):
     @property
     def available(self) -> bool:
         device = self._device
-        return bool(device) and device.get("Device_is_online", 1) == 1
+        return super().available and bool(device) and device.get("Device_is_online", 1) == 1
 
     @property
     def hvac_mode(self) -> HVACMode | None:

@@ -143,7 +143,7 @@ def build_heartbeat_ack(ping: bytes) -> bytes:
 
 
 def route(packet: DataPacket, data_dict: dict):
-    _LOGGER.info(f"packet come {packet.proto_num} {packet.proto_type} {packet.link_code}")
+    _LOGGER.info("packet come %s %s %s", packet.proto_num, packet.proto_type, packet.link_code)
 
     if packet.proto_num == 1 and packet.proto_type == 3 and packet.link_code == 8:
         datareq_field = next((f for f in packet.fields if f.id == 15), None)

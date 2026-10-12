@@ -60,6 +60,7 @@
 - 服务端主动断开（`ServerDisconnectedError`）：进入冷却期（默认 600 秒）。
 - 心跳：网关每约 10 秒下发 `6/13`，约 60 秒收不到 `6/14` 回应即断开连接；`_read_loop` 收到后立即回应（见 `docs/protocol/keepalive.md`）。
 - 实测网关允许多个客户端同时连接。
+- 刷新时网关不可达（`ConnectionError`，含冷却期）会抛出 `UpdateFailed`，各实体随之显示为不可用，而不是继续展示旧状态。
 - 冷却时间可在 `custom_components/ha_moorgen_home/core/socket_client.py` 的 `_kick_cooldown_seconds` 调整。
 
 目的：避免调试期间 HA 频繁抢占连接。

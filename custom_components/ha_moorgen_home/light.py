@@ -10,6 +10,22 @@ from .core.protocol.codec import device_room_id, infer_device_type
 _LOGGER = logging.getLogger(__name__)
 
 
+def level_to_brightness(level: int) -> int:
+    """Gateway dimming level (0-100) -> HA brightness (0-255)."""
+    return round(max(0, min(100, level)) * 255 / 100)
+
+
+def brightness_to_level(brightness: int) -> int:
+    """HA brightness (0-255) -> gateway dimming level (0-100).
+
+    Any non-zero brightness maps to at least 1 so dimming down never switches the light off.
+    """
+    brightness = max(0, min(255, brightness))
+    if brightness == 0:
+        return 0
+    return max(1, round(brightness * 100 / 255))
+
+
 async def async_setup_entry(hass, config_entry, async_add_entities):
     coordinator = hass.data[DOMAIN][COORDINATOR]
     entities = []
@@ -94,13 +110,12 @@ class MoorgenLightEntity(CoordinatorEntity, LightEntity):
         if not isinstance(raw, int):
             return None
 
-        level_100 = max(0, min(100, raw & 0xFF))
-        return round(level_100 * 255 / 100)
+        return level_to_brightness(raw & 0xFF)
 
     @property
     def available(self) -> bool:
         device = self._device
-        if not device:
+        if not super().available or not device:
             return False
         return device.get("Device_is_online", 1) == 1
 
@@ -110,16 +125,10 @@ class MoorgenLightEntity(CoordinatorEntity, LightEntity):
             return
 
         if ATTR_BRIGHTNESS in kwargs:
-            ha_level = kwargs[ATTR_BRIGHTNESS] or 0
-            level_100 = round(max(0, min(255, ha_level)) * 100 / 255)
+            level_100 = brightness_to_level(kwargs[ATTR_BRIGHTNESS] or 0)
         else:
-            current = self.brightness
-            if current is None:
-                level_100 = 100
-            else:
-                level_100 = round(max(0, min(255, current)) * 100 / 255)
-                if level_100 == 0:
-                    level_100 = 100
+            # Restore the last level; fall back to full brightness when it is unknown or 0.
+            level_100 = brightness_to_level(self.brightness or 0) or 100
 
         await self.coordinator.set_device_brightness(self._device_mac, level_100)
 

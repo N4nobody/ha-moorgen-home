@@ -147,7 +147,7 @@ class AsyncSocketClient:
             self._cooldown_until = 0.0
 
     async def _connect_once(self):
-        _LOGGER.info(f"Connecting to {self.host}:{self.port}")
+        _LOGGER.info("Connecting to %s:%s", self.host, self.port)
         self._reader, self._writer = await asyncio.open_connection(self.host, self.port)
         self.data.pop("_pending_devices", None)
         self._connected = True
@@ -245,4 +245,4 @@ class AsyncSocketClient:
                 raise ConnectionError("Not connected, cannot send data")
             self._writer.write(data)
             await self._writer.drain()
-            _LOGGER.info(f"[TX] Sent: {data.hex()}")
+            _LOGGER.info("[TX] Sent: %s", data.hex())

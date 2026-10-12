@@ -188,8 +188,9 @@ class MoorgenDataCoordinator(DataUpdateCoordinator):
             _LOGGER.warning("data refresh timeout: %r", ex)
             return self.client.data
         except ConnectionError as ex:
-            _LOGGER.info("skip refresh while disconnected: %s", ex)
-            return self.client.data
+            # Mark entities unavailable instead of silently serving stale state.
+            _LOGGER.warning("gateway unreachable: %s", ex)
+            raise UpdateFailed(f"Moorgen gateway unreachable: {ex}") from ex
         except Exception as ex:
             _LOGGER.warning("async update failed: %r", ex)
-            raise UpdateFailed(f"Error fetching lights data: {ex!r}") from ex
+            raise UpdateFailed(f"Error fetching Moorgen data: {ex!r}") from ex
